@@ -1,34 +1,52 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.Experimental.AI;
 
 public class SnakeScript : MonoBehaviour
 {
     [SerializeField]
     private GameObject bodyPrefab;
     private Queue<GameObject> snake = new Queue<GameObject>();
-    private float moveTimer = 0.5f;
+    private Vector3 headPosition = new Vector3(-0.5f, -0.5f, 0);
+    private float moveTimer = 0.25f;
+    private Vector3 moveDir = Vector3.right;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        for (int i = 0; i < 3; i++)
+        // loop backwards to put head at front of queue
+        for (int i = 2; i >= 0; i--)
         {
-            GameObject newBody = Instantiate(bodyPrefab, new Vector3((float)(-0.5 - i), (float)(-0.5), 0), Quaternion.identity);
-            snake.Enqueue(newBody);
+            snake.Enqueue(Instantiate(bodyPrefab, headPosition + (i * Vector3.left), Quaternion.identity));
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        // kb input -> movement direction
+        if (Input.GetKeyDown(KeyCode.UpArrow) && moveDir != Vector3.down)
+        {
+            moveDir = Vector3.up;
+        } else if (Input.GetKeyDown(KeyCode.DownArrow) && moveDir != Vector3.up)
+        {
+            moveDir = Vector3.down;
+        }
+        else if(Input.GetKeyDown(KeyCode.LeftArrow) && moveDir != Vector3.right)
+        {
+            moveDir = Vector3.left;
+        } else if(Input.GetKeyDown(KeyCode.RightArrow) && moveDir != Vector3.left)
+        {
+            moveDir = Vector3.right;
+        }
+
+        // move if it's time
         moveTimer -= Time.deltaTime;
         if (moveTimer < 0) {
-            foreach (GameObject item in snake)
-            {
-                item.transform.position += new Vector3(1, 0, 0);
-            }
-            moveTimer = 0.5f;
+            headPosition += moveDir;
+            GameObject tail = snake.Dequeue();
+            Destroy(tail);
+            snake.Enqueue(Instantiate(bodyPrefab, headPosition, Quaternion.identity));
+            moveTimer = 0.25f;
         }
     }
 }
