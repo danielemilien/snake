@@ -10,13 +10,15 @@ public class AppleScript : MonoBehaviour
             transform.position = new Vector3((int)Random.Range(-10, 11), (int)Random.Range(-10, 11), 0);
             foreach (GameObject segment in snake)
             {
-                if (transform.position == segment.transform.position)
+                if (transform.position != segment.transform.position)
                 {
-                    validPosition = false;
+                    validPosition = true;
+                } else
+                {
+                    validPosition = false; 
                     break;
                 }
             }
-            validPosition = true;
         }
     }
 }

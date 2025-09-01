@@ -1,25 +1,34 @@
 using UnityEngine;
 using System.Collections.Generic;
-
 public class SnakeScript : MonoBehaviour
 {
     // const settings
     public int startingSize = 5;
     public float moveInterval = 0.25f;
 
+    // references passed throgh inspector
     [SerializeField]
     private GameObject bodyPrefab;
-    private Queue<GameObject> snake = new Queue<GameObject>();
-    private Vector3 headPosition = Vector3.zero;
-    private float moveTimer = 0;
-    private Vector3 lastMoveDir = Vector3.zero;
-    private Vector3 moveDir = Vector3.right;
-
     public GameObject apple;
+
+    private Queue<GameObject> snake;
+    private Vector3 headPosition;
+    private float moveTimer;
+    private Vector3 lastMoveDir;
+    private Vector3 moveDir;
+    private bool dead;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // field initializtion
+        snake = new Queue<GameObject>();
+        headPosition = Vector3.zero;
+        lastMoveDir = Vector3.zero;
+        moveDir = Vector3.right;
+        dead = false;
+        moveTimer = moveInterval;
+
         // loop backwards to put head at front of queue
         for (int i = startingSize - 1; i >= 0; i--)
         {
@@ -28,13 +37,14 @@ public class SnakeScript : MonoBehaviour
 
         // set initial apple position
         apple.GetComponent<AppleScript>().reposition(snake.ToArray());
-
-        moveTimer = moveInterval;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // dont do anything if dead
+        if (dead) return;
+
         // kb input -> movement direction
         // can't move in opposite direction of current movement
         if (Input.GetKeyDown(KeyCode.UpArrow) && lastMoveDir != Vector3.down && lastMoveDir != Vector3.up)
@@ -59,18 +69,31 @@ public class SnakeScript : MonoBehaviour
             lastMoveDir = moveDir;
             headPosition += moveDir;
 
-            // remove body segment from back, add to front in correct direction
-            GameObject tail = snake.Dequeue();
-            Destroy(tail);
+            // add new head
             snake.Enqueue(Instantiate(bodyPrefab, headPosition, Quaternion.identity));
 
-            // reposition apple if we collected it
+            // if collected apple reposition it and extend snake
             if (headPosition == apple.transform.position)
             {
                 apple.GetComponent<AppleScript>().reposition(snake.ToArray());
+            } else
+            {
+                Destroy(snake.Dequeue());
             }
 
-            // reset timer
+            // die if snake runs into itself
+            GameObject[] snakeArray = snake.ToArray();
+            for (int i = 0; i < snake.Count - 1; i++)
+            {
+                // end at len - 1 to avoid comparing head to itself
+                if (snakeArray[i].transform.position == headPosition)
+                {
+                    dead = true;
+                    break;
+                }
+            }
+
+            // reset move timer
             moveTimer = moveInterval;
         }
 
