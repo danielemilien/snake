@@ -10,10 +10,12 @@ public class SnakeScript : MonoBehaviour
     [SerializeField]
     private GameObject bodyPrefab;
     private Queue<GameObject> snake = new Queue<GameObject>();
-    private Vector3 headPosition = new Vector3(-0.5f, -0.5f, 0);
+    private Vector3 headPosition = Vector3.zero;
     private float moveTimer = 0;
     private Vector3 lastMoveDir = Vector3.zero;
     private Vector3 moveDir = Vector3.right;
+
+    public GameObject apple;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -23,6 +25,10 @@ public class SnakeScript : MonoBehaviour
         {
             snake.Enqueue(Instantiate(bodyPrefab, headPosition + (i * Vector3.left), Quaternion.identity));
         }
+
+        // set initial apple position
+        apple.GetComponent<AppleScript>().reposition(snake.ToArray());
+
         moveTimer = moveInterval;
     }
 
@@ -31,17 +37,17 @@ public class SnakeScript : MonoBehaviour
     {
         // kb input -> movement direction
         // can't move in opposite direction of current movement
-        if (Input.GetKeyDown(KeyCode.UpArrow) && lastMoveDir != Vector3.down)
+        if (Input.GetKeyDown(KeyCode.UpArrow) && lastMoveDir != Vector3.down && lastMoveDir != Vector3.up)
         {
             moveDir = Vector3.up;
-        } else if (Input.GetKeyDown(KeyCode.DownArrow) && lastMoveDir != Vector3.up)
+        } else if (Input.GetKeyDown(KeyCode.DownArrow) && lastMoveDir != Vector3.up && lastMoveDir != Vector3.down)
         {
             moveDir = Vector3.down;
         }
-        else if(Input.GetKeyDown(KeyCode.LeftArrow) && lastMoveDir != Vector3.right)
+        else if(Input.GetKeyDown(KeyCode.LeftArrow) && lastMoveDir != Vector3.right && lastMoveDir != Vector3.left)
         {
             moveDir = Vector3.left;
-        } else if(Input.GetKeyDown(KeyCode.RightArrow) && lastMoveDir != Vector3.left)
+        } else if(Input.GetKeyDown(KeyCode.RightArrow) && lastMoveDir != Vector3.left && lastMoveDir != Vector3.right)
         {
             moveDir = Vector3.right;
         }
@@ -58,8 +64,15 @@ public class SnakeScript : MonoBehaviour
             Destroy(tail);
             snake.Enqueue(Instantiate(bodyPrefab, headPosition, Quaternion.identity));
 
+            // reposition apple if we collected it
+            if (headPosition == apple.transform.position)
+            {
+                apple.GetComponent<AppleScript>().reposition(snake.ToArray());
+            }
+
             // reset timer
             moveTimer = moveInterval;
         }
+
     }
 }
