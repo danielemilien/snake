@@ -11,12 +11,18 @@ public class SnakeScript : MonoBehaviour
     private GameObject bodyPrefab;
     public GameObject apple;
 
+    // snake info
+    private bool dead;
     private Queue<GameObject> snake;
     private Vector3 headPosition;
     private float moveTimer;
-    private Vector3 lastMoveDir;
     private Vector3 moveDir;
-    private bool dead;
+    private Vector3 lastMoveDir;
+
+    // game info
+    public GameObject gameManager;
+    private int areaWidth;
+    private int areaHeight;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -28,6 +34,8 @@ public class SnakeScript : MonoBehaviour
         moveDir = Vector3.right;
         dead = false;
         moveTimer = moveInterval;
+        areaWidth = gameManager.GetComponent<GameManagerScript>().playAreaWidth - 1;
+        areaHeight = gameManager.GetComponent<GameManagerScript>().playAreaHeight - 1;
 
         // loop backwards to put head at front of queue
         for (int i = startingSize - 1; i >= 0; i--)
@@ -91,6 +99,15 @@ public class SnakeScript : MonoBehaviour
                     dead = true;
                     break;
                 }
+            }
+
+            // die if snake leaves border
+            if (headPosition.x > (int)(areaWidth / 2) 
+                || headPosition.x < (int)(-areaWidth / 2)
+                || headPosition.y > (int)(areaHeight / 2)
+                || headPosition.y < (int)(-areaHeight / 2))
+            {
+                dead = true;
             }
 
             // reset move timer

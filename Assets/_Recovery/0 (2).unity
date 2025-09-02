@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bb1dd0f653b02e4bbc9ffe0a534275f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  gameManager: {fileID: 1316398088}
+  gameManager: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -509,7 +509,6 @@ MonoBehaviour:
   moveInterval: 0.075
   bodyPrefab: {fileID: 7123215796469020581, guid: 8dcd1ff2ef7e7a74f8ab970d45f74914, type: 3}
   apple: {fileID: 509963369}
-  gameManager: {fileID: 1316398088}
 --- !u!4 &986358484
 Transform:
   m_ObjectHideFlags: 0
